@@ -44,6 +44,7 @@ public class PongGame extends SurfaceView implements Runnable {
 
     // The game objects
     private Bat mBat;
+    private BatTwo mBatTwo;
     private Ball mBall;
 
     // The current score and lives remaining
@@ -97,6 +98,7 @@ public class PongGame extends SurfaceView implements Runnable {
         // Initialize the bat and ball
         mBall = new Ball(mScreenX);
         mBat = new Bat(mScreenX, mScreenY);
+        mBatTwo = new BatTwo(mScreenX, mScreenY);
 
         // Prepare the SoundPool instance
         // Depending upon the version of Android
@@ -206,6 +208,7 @@ public class PongGame extends SurfaceView implements Runnable {
         // Update the bat and the ball
         mBall.update(mFPS);
         mBat.update(mFPS);
+        mBatTwo.update(mFPS);
 
     }
 
@@ -216,6 +219,18 @@ public class PongGame extends SurfaceView implements Runnable {
 
             // Realistic-ish bounce
             mBall.batBounce(mBat.getRect());
+            mBall.increaseVelocity();
+            mScore++;
+
+            mSP.play(mBeepID, 1, 1, 0, 0, 1);
+
+        }
+
+        // Has the bat hit the ball?
+        if (RectF.intersects(mBatTwo.getRect(), mBall.getRect())) {
+
+            // Realistic-ish bounce
+            mBall.batBounce(mBatTwo.getRect());
             mBall.increaseVelocity();
             mScore++;
 
@@ -304,6 +319,7 @@ public class PongGame extends SurfaceView implements Runnable {
             // Draw the bat and ball
             mCanvas.drawRect(mBall.getRect(), mPaint);
             mCanvas.drawRect(mBat.getRect(), mPaint);
+            mCanvas.drawRect(mBatTwo.getRect(), mPaint);
 
             // Choose the font size
             mPaint.setTextSize(mFontSize);
@@ -349,24 +365,29 @@ public class PongGame extends SurfaceView implements Runnable {
                 if (motionEvent.getX() > mScreenX / 2) {
                     // On the right hand side
                     mBat.setMovementState(mBat.RIGHT);
-                } else {
+                    mBatTwo.setMovementState(mBatTwo.LEFT);
+                } else{
                     // On the left hand side
                     mBat.setMovementState(mBat.LEFT);
+                    mBatTwo.setMovementState(mBat.RIGHT);
                 }
+
                 break;
 
-            // The player lifted their finger
-            // from anywhere on screen.
-            // It is possible to create bugs by using
-            // multiple fingers. We will use more
-            // complicated and robust touch handling
-            // in later projects
-            case MotionEvent.ACTION_UP:
-                // Stop the bat moving
-                mBat.setMovementState(mBat.STOPPED);
-                break;
 
-        }
-        return true;
+        // The player lifted their finger
+        // from anywhere on screen.
+        // It is possible to create bugs by using
+        // multiple fingers. We will use more
+        // complicated and robust touch handling
+        // in later projects
+        case MotionEvent.ACTION_UP:
+        // Stop the bat moving
+        mBat.setMovementState(mBat.STOPPED);
+        mBatTwo.setMovementState(mBatTwo.STOPPED);
+        break;
+
     }
+        return true;
+}
 }
